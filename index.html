@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#4F46E5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>QRコード生成</title>
+    <meta name="description" content="テキストやURLからQRコードを生成するPWAアプリ" />
+    <link rel="icon" href="/pwa_qrMaker/favicon.ico" />
+
+    <!-- GitHub Pages SPA redirect handler -->
+    <script>
+      (function () {
+        var redirect = sessionStorage.redirect;
+        delete sessionStorage.redirect;
+        if (redirect && redirect !== location.href) {
+          history.replaceState(null, null, redirect);
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/pwa_qrMaker/assets/index-D2hwaBkQ.js"></script>
+    <link rel="stylesheet" crossorigin href="/pwa_qrMaker/assets/index-w3JNIAlk.css">
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script>
+      // Dynamically determine base path from current location
+      // In production (GitHub Pages): /pwa_qrMaker/
+      // In development/preview: /
+      (function () {
+        var base = "/";
+        if (location.pathname.indexOf("/pwa_qrMaker") === 0) {
+          base = "/pwa_qrMaker/";
+        }
+
+        // Set manifest dynamically
+        var manifestLink = document.createElement("link");
+        manifestLink.rel = "manifest";
+        manifestLink.href = base + "manifest.json";
+        document.head.appendChild(manifestLink);
+
+        // Set apple-touch-icon
+        var appleIcon = document.createElement("link");
+        appleIcon.rel = "apple-touch-icon";
+        appleIcon.href = base + "icons/icon-192.png";
+        document.head.appendChild(appleIcon);
+
+        // Register SW
+        if ("serviceWorker" in navigator) {
+          window.addEventListener("load", function () {
+            navigator.serviceWorker.register(base + "sw.js", { scope: base }).then(function (reg) {
+              reg.addEventListener("updatefound", function () {
+                var newWorker = reg.installing;
+                if (newWorker) {
+                  newWorker.addEventListener("statechange", function () {
+                    if (newWorker.state === "activated") {
+                      window.location.reload();
+                    }
+                  });
+                }
+              });
+            }).catch(function (err) {
+              console.log("SW registration failed:", err);
+            });
+            navigator.serviceWorker.addEventListener("message", function (event) {
+              if (event.data && event.data.type === "SW_UPDATED") {
+                window.location.reload();
+              }
+            });
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
